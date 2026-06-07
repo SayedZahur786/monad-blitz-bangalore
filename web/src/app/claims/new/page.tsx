@@ -227,9 +227,7 @@ export default function NewClaimPage() {
                   <Label>{t("coverageLimit")}</Label>
                   <Input type="number" min={0} value={coverageLimit} onChange={(e) => setCoverageLimit(e.target.value)} />
                 </div>
-                <div className="flex items-end pb-1">
-                  <Toggle checked={requiresPreAuth} onChange={setRequiresPreAuth} label={t("requiresPreAuth")} />
-                </div>
+                <Toggle checked={requiresPreAuth} onChange={setRequiresPreAuth} label={t("requiresPreAuth")} />
               </div>
             </Section>
 
@@ -244,9 +242,7 @@ export default function NewClaimPage() {
                     placeholder="Cataract Surgery"
                   />
                 </div>
-                <div className="flex items-end pb-1">
-                  <Toggle checked={preAuthProvided} onChange={setPreAuthProvided} label={t("preAuthProvided")} />
-                </div>
+                <Toggle checked={preAuthProvided} onChange={setPreAuthProvided} label={t("preAuthProvided")} />
               </div>
             </Section>
 
@@ -320,21 +316,28 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      className="flex items-center gap-2 text-sm font-medium text-foreground"
-    >
-      <span
-        className={`relative h-6 w-11 rounded-full transition-colors ${checked ? "bg-accent" : "bg-slate-300"}`}
+    <div>
+      <Label>{label}</Label>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className="flex h-10 w-full items-center justify-between rounded-lg border border-border bg-white px-3 text-sm text-foreground transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
       >
+        <span className={checked ? "font-medium text-accent" : "text-muted"}>{checked ? "Yes" : "No"}</span>
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-            checked ? "translate-x-5" : "translate-x-0.5"
+          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+            checked ? "bg-accent" : "bg-slate-300"
           }`}
-        />
-      </span>
-      {label}: <span className={checked ? "text-accent" : "text-muted"}>{checked ? "Yes" : "No"}</span>
-    </button>
+        >
+          <span
+            className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              checked ? "translate-x-5" : "translate-x-0"
+            }`}
+          />
+        </span>
+      </button>
+    </div>
   );
 }
