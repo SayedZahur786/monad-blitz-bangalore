@@ -19,6 +19,7 @@ export async function POST(req: Request) {
       abhaNumber: String(body.abhaNumber ?? ""),
       policyNumber: String(body.policyNumber ?? ""),
       claimType: (body.claimType as ClaimInput["claimType"]) ?? "Hospital Claim",
+      scheme: body.scheme === "PM-JAY" ? "PM-JAY" : "Private",
       procedure: String(body.procedure ?? ""),
       claimedAmount: Number(body.claimedAmount ?? 0),
       description: String(body.description ?? ""),

@@ -6,7 +6,7 @@
 
 import type { AIDecision, ClaimInput, PolicyData, RuleResult } from "./types";
 
-/** A sensible default policy pre-filled into the form for the demo. */
+/** A sensible default private-insurance policy pre-filled into the form. */
 export const DEFAULT_POLICY: PolicyData = {
   coveredProcedures: [
     "Cataract Surgery",
@@ -15,6 +15,27 @@ export const DEFAULT_POLICY: PolicyData = {
     "Appendectomy",
     "Chemotherapy",
     "Dialysis",
+  ],
+  coverageLimit: 500_000,
+  requiresPreAuthorization: true,
+};
+
+/**
+ * PM-JAY (Ayushman Bharat) government-scheme preset.
+ * Family cover of Rs 5,00,000 per year; treatment is cashless at empanelled
+ * hospitals and pre-authorisation is mandatory for listed packages.
+ */
+export const PMJAY_POLICY: PolicyData = {
+  coveredProcedures: [
+    "Cataract Surgery",
+    "Knee Replacement",
+    "Angioplasty",
+    "Appendectomy",
+    "Chemotherapy",
+    "Dialysis",
+    "Caesarean Section",
+    "Cardiac Bypass (CABG)",
+    "Hysterectomy",
   ],
   coverageLimit: 500_000,
   requiresPreAuthorization: true,
@@ -36,6 +57,7 @@ export function buildClaimJson(input: ClaimInput) {
       procedure: input.procedure,
       claimedAmount: input.claimedAmount,
       claimType: input.claimType,
+      scheme: input.scheme,
     },
     policy: {
       coveredProcedures: input.policy.coveredProcedures,
@@ -112,12 +134,15 @@ export function runRuleEngine(input: ClaimInput): Omit<AIDecision, "source"> {
       ? ruleResults.map((r) => `${r.rule}: PASS — ${r.detail}`)
       : failed.map((r) => `${r.rule}: FAIL — ${r.detail}`);
 
+  const schemeNote =
+    input.scheme === "PM-JAY" ? " This claim is processed under PM-JAY (Ayushman Bharat)." : "";
+
   const explanation =
     decision === "APPROVE"
-      ? `The claim is APPROVED. All four policy rules passed for ${inr(input.claimedAmount)}.`
+      ? `The claim is APPROVED. All four policy rules passed for ${inr(input.claimedAmount)}.${schemeNote}`
       : `The claim is REJECTED because ${failed.length} rule${failed.length > 1 ? "s" : ""} failed: ${failed
           .map((r) => r.rule)
-          .join(", ")}.`;
+          .join(", ")}.${schemeNote}`;
 
   return {
     decision,

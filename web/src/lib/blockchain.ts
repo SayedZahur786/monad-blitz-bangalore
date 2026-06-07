@@ -26,7 +26,7 @@ function buildMetadata(claimId: string, input: ClaimInput, decision: AIDecision)
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(input.claimedAmount);
-  return `${claimId} | ${input.procedure} | ${amount} | ${maskAbha(input.abhaNumber)} | ${decision.decision}`;
+  return `${claimId} | ${input.scheme} | ${input.procedure} | ${amount} | ${maskAbha(input.abhaNumber)} | ${decision.decision}`;
 }
 
 function getPrivateKey(): Hex | null {

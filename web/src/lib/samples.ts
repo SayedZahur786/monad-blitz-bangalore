@@ -1,7 +1,7 @@
 // Pre-filled sample claims for instant demo testing. Each exercises a different
 // rule outcome (one APPROVE, plus a REJECT for each failing rule).
 
-import { DEFAULT_POLICY } from "./policy";
+import { DEFAULT_POLICY, PMJAY_POLICY } from "./policy";
 import type { ClaimInput } from "./types";
 
 export interface SampleClaim {
@@ -14,6 +14,7 @@ const base = {
   abhaNumber: "12-3456-7890-1234",
   policyNumber: "CT-IND-2026-0091",
   claimType: "Hospital Claim" as const,
+  scheme: "Private" as const,
   fileNames: ["discharge_summary.pdf", "final_bill.pdf"],
   policy: DEFAULT_POLICY,
 };
@@ -72,6 +73,21 @@ export const SAMPLE_CLAIMS: SampleClaim[] = [
       claimedAmount: 75000,
       description: "Claim filed for appendectomy, but the hospital record shows a different procedure.",
       hospitalRecord: { procedurePerformed: "Cholecystectomy", preAuthorizationProvided: true },
+    },
+  },
+  {
+    label: "PM-JAY claim",
+    hint: "APPROVE · Govt scheme",
+    input: {
+      ...base,
+      scheme: "PM-JAY",
+      policy: PMJAY_POLICY,
+      abhaNumber: "44-9988-7766-5544",
+      policyNumber: "PMJAY-2026-7781",
+      procedure: "Angioplasty",
+      claimedAmount: 165000,
+      description: "Cashless angioplasty at an empanelled hospital under PM-JAY. Pre-authorisation PA-7781 approved.",
+      hospitalRecord: { procedurePerformed: "Angioplasty", preAuthorizationProvided: true },
     },
   },
 ];

@@ -2,6 +2,9 @@
 
 export type ClaimType = "Pharmacy" | "Pre-Authorization" | "Hospital Claim";
 
+/** Funding scheme the claim is filed under. */
+export type Scheme = "Private" | "PM-JAY";
+
 /** Binary outcome of the rule-based adjudication. */
 export type DecisionOutcome = "APPROVE" | "REJECT";
 
@@ -23,6 +26,7 @@ export interface ClaimInput {
   abhaNumber: string;
   policyNumber: string;
   claimType: ClaimType;
+  scheme: Scheme; // Private insurance or PM-JAY government scheme
   procedure: string; // claim.procedure
   claimedAmount: number; // claim.claimedAmount (INR)
   description: string; // free-text notes / doctor's summary

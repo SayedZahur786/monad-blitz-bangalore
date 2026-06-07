@@ -5,11 +5,12 @@ import { useState } from "react";
 import { Button, Card, CardBody, Input, Label, Select, Textarea } from "@/components/ui";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { useI18n } from "@/lib/i18n";
-import { DEFAULT_POLICY } from "@/lib/policy";
+import { lookupAbha, type AbhaProfile } from "@/lib/abdm";
+import { DEFAULT_POLICY, PMJAY_POLICY } from "@/lib/policy";
 import { SAMPLE_CLAIMS } from "@/lib/samples";
 import { saveClaim } from "@/lib/store";
-import { generateClaimId } from "@/lib/utils";
-import type { AIDecision, BlockchainProof, ClaimInput, ClaimType } from "@/lib/types";
+import { formatINR, generateClaimId } from "@/lib/utils";
+import type { AIDecision, BlockchainProof, ClaimInput, ClaimType, Scheme } from "@/lib/types";
 
 const CLAIM_TYPES: ClaimType[] = ["Pharmacy", "Pre-Authorization", "Hospital Claim"];
 
@@ -20,8 +21,11 @@ export default function NewClaimPage() {
   // Patient / policy identity
   const [abha, setAbha] = useState("");
   const [abhaVerified, setAbhaVerified] = useState(false);
+  const [profile, setProfile] = useState<AbhaProfile | null>(null);
+  const [fetched, setFetched] = useState(false);
   const [policyNumber, setPolicyNumber] = useState("");
   const [claimType, setClaimType] = useState<ClaimType>("Hospital Claim");
+  const [scheme, setScheme] = useState<Scheme>("Private");
 
   // Claim
   const [procedure, setProcedure] = useState("");
@@ -42,12 +46,44 @@ export default function NewClaimPage() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(-1);
 
+  function handleVerify() {
+    setProfile(lookupAbha(abha));
+    setAbhaVerified(true);
+  }
+
+  function handleFetch() {
+    const p = lookupAbha(abha);
+    setProfile(p);
+    setAbhaVerified(true);
+    setFetched(true);
+    const rec = p.records[0];
+    if (rec) {
+      // Auto-fill the claim + hospital record from the consented ABHA records.
+      setProcedure(rec.procedure);
+      setClaimedAmount(String(rec.amount));
+      setProcedurePerformed(rec.procedure);
+      setPreAuthProvided(rec.preAuthorizationProvided);
+      setDescription(`${rec.diagnosis}. Treated at ${rec.facility} on ${rec.date}.`);
+    }
+  }
+
+  function applyScheme(next: Scheme) {
+    setScheme(next);
+    const pol = next === "PM-JAY" ? PMJAY_POLICY : DEFAULT_POLICY;
+    setCoveredProcedures(pol.coveredProcedures.join(", "));
+    setCoverageLimit(String(pol.coverageLimit));
+    setRequiresPreAuth(pol.requiresPreAuthorization);
+  }
+
   function loadSample(i: number) {
     const s = SAMPLE_CLAIMS[i].input;
     setAbha(s.abhaNumber);
     setAbhaVerified(false);
+    setProfile(null);
+    setFetched(false);
     setPolicyNumber(s.policyNumber);
     setClaimType(s.claimType);
+    setScheme(s.scheme);
     setProcedure(s.procedure);
     setClaimedAmount(String(s.claimedAmount));
     setDescription(s.description);
@@ -74,6 +110,7 @@ export default function NewClaimPage() {
       abhaNumber: abha,
       policyNumber,
       claimType,
+      scheme,
       procedure: procedure.trim(),
       claimedAmount: Number(claimedAmount),
       description: description.trim(),
@@ -153,27 +190,81 @@ export default function NewClaimPage() {
       <Card>
         <CardBody>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Identity */}
+            {/* Scheme selector */}
+            <div className="rounded-xl border border-border bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-sm font-semibold text-foreground">{t("schemePmjay")}</div>
+                  <p className="text-xs text-muted">{t("schemePmjayHint")}</p>
+                </div>
+                <SwitchOnly checked={scheme === "PM-JAY"} onChange={(on) => applyScheme(on ? "PM-JAY" : "Private")} />
+              </div>
+              {scheme === "PM-JAY" && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                  🇮🇳 Ayushman Bharat — PM-JAY · ₹5,00,000 family cover · cashless
+                </div>
+              )}
+            </div>
+
+            {/* Identity + ABDM */}
             <Section title="Patient & Policy">
-              <Label>{t("abhaNumber")}</Label>
-              <div className="flex gap-2">
+              <Label>{t("abhaOptional")}</Label>
+              <div className="flex flex-wrap gap-2">
                 <Input
+                  className="min-w-[180px] flex-1"
                   value={abha}
                   onChange={(e) => {
                     setAbha(e.target.value);
                     setAbhaVerified(false);
+                    setFetched(false);
                   }}
                   placeholder="12-3456-7890-1234"
                 />
-                <Button
-                  type="button"
-                  variant={abhaVerified ? "success" : "outline"}
-                  onClick={() => setAbhaVerified(abha.trim().length >= 4)}
-                >
+                <Button type="button" variant={abhaVerified ? "success" : "outline"} onClick={handleVerify}>
                   {abhaVerified ? t("verified") : t("verify")}
                 </Button>
+                <Button type="button" variant="primary" onClick={handleFetch}>
+                  ⬇ {t("fetchRecords")}
+                </Button>
               </div>
-              {abhaVerified && <p className="mt-1 text-xs text-accent">ABHA verified against the mock registry.</p>}
+
+              {/* Verified patient card (ABDM) */}
+              {profile && (
+                <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
+                        {profile.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                      </span>
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">{profile.name}</div>
+                        <div className="text-xs text-muted">
+                          {profile.age} yrs · {profile.gender} · {profile.state}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                      ✓ {t("abhaVerifiedVia")}
+                    </span>
+                  </div>
+                  <div className="mt-2 font-mono text-xs text-muted">{profile.abhaAddress}</div>
+
+                  {fetched && profile.records.length > 0 && (
+                    <div className="mt-3 border-t border-blue-100 pt-2">
+                      <div className="mb-1 text-xs font-medium text-foreground">{t("linkedRecords")}</div>
+                      <ul className="space-y-1">
+                        {profile.records.map((r, i) => (
+                          <li key={i} className="text-xs text-slate-700">
+                            🏥 <span className="font-medium">{r.procedure}</span> — {r.facility}, {r.date} ·{" "}
+                            {formatINR(r.amount)} · pre-auth {r.preAuthorizationProvided ? "✓" : "✕"}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-2 text-xs text-accent">↳ {t("autoFilled")}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="mt-4 grid gap-5 sm:grid-cols-2">
                 <div>
@@ -278,6 +369,24 @@ export default function NewClaimPage() {
               </div>
             </Section>
 
+            {/* Privacy by design */}
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-800">
+                🔒 {t("privacyTitle")}
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-emerald-800/90">{t("privacyNote")}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-lg border border-emerald-100 bg-white p-2.5">
+                  <div className="text-xs font-medium text-foreground">{t("offChainData")}</div>
+                  <div className="text-xs text-muted">ABHA, name, full records, reasons</div>
+                </div>
+                <div className="rounded-lg border border-emerald-100 bg-white p-2.5">
+                  <div className="text-xs font-medium text-foreground">{t("onChainData")}</div>
+                  <div className="text-xs text-muted">keccak256 hash, decision, masked summary</div>
+                </div>
+              </div>
+            </div>
+
             <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-slate-50 p-3">
               <input
                 type="checkbox"
@@ -314,6 +423,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   );
 }
 
+/** Switch with a label-on-top, matching input height (used in 2-col grids). */
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <div>
@@ -326,18 +436,35 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         className="flex h-10 w-full items-center justify-between rounded-lg border border-border bg-white px-3 text-sm text-foreground transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
       >
         <span className={checked ? "font-medium text-accent" : "text-muted"}>{checked ? "Yes" : "No"}</span>
-        <span
-          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-            checked ? "bg-accent" : "bg-slate-300"
-          }`}
-        >
-          <span
-            className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-              checked ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </span>
+        <Knob checked={checked} />
       </button>
     </div>
+  );
+}
+
+/** Bare switch (no label/border), used for the scheme selector row. */
+function SwitchOnly({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="shrink-0 focus:outline-none"
+    >
+      <Knob checked={checked} />
+    </button>
+  );
+}
+
+function Knob({ checked }: { checked: boolean }) {
+  return (
+    <span className={`relative inline-block h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-accent" : "bg-slate-300"}`}>
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </span>
   );
 }

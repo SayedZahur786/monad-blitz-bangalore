@@ -124,6 +124,7 @@ export default function DecisionPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">{t("inputsTitle")}</h2>
             <dl className="space-y-2.5 text-sm">
               <Row label={t("abhaNumber")} value={maskAbha(input.abhaNumber)} />
+              <Row label={t("schemeLabel")} value={input.scheme === "PM-JAY" ? "PM-JAY (Ayushman Bharat)" : "Private insurance"} />
               <Row label={t("policyNumber")} value={input.policyNumber || "—"} />
               <Row label={t("procedure")} value={input.procedure} />
               <Row label={t("claimAmount")} value={formatINR(input.claimedAmount)} />
@@ -183,6 +184,22 @@ export default function DecisionPage() {
               <p className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50/60 p-3 text-xs leading-relaxed text-emerald-800">
                 🔒 {t("immutableNote")}
               </p>
+              <div className="mt-3">
+                <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-foreground">
+                  🔒 {t("privacyTitle")}
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border bg-slate-50 p-2.5">
+                    <div className="text-xs font-medium text-foreground">{t("offChainData")}</div>
+                    <div className="text-xs text-muted">ABHA, name, full records, full reasons</div>
+                  </div>
+                  <div className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-2.5">
+                    <div className="text-xs font-medium text-foreground">{t("onChainData")}</div>
+                    <div className="break-all font-mono text-[11px] text-emerald-800">{shortHash(proof.reasonsHash, 14, 10)}</div>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-muted">{t("privacyNote")}</p>
+              </div>
               {proof.simulated && <p className="mt-2 text-xs text-amber-700">⚠ {t("simulatedNote")}</p>}
             </>
           ) : (
