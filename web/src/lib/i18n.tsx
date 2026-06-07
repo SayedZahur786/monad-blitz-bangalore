@@ -1,4 +1,4 @@
-// Minimal English <-> Hindi i18n for ClaimTrust India.
+// Minimal English <-> Hindi i18n for We-WhoCares.
 // Stores the chosen language in localStorage and exposes a `t()` helper.
 
 "use client";
@@ -10,7 +10,7 @@ export type Lang = "en" | "hi";
 type Dict = Record<string, { en: string; hi: string }>;
 
 const DICT: Dict = {
-  appName: { en: "ClaimTrust India", hi: "क्लेमट्रस्ट इंडिया" },
+  appName: { en: "We-WhoCares", hi: "We-WhoCares" },
   tagline: {
     en: "Explainable AI claim decisions, permanently on Monad.",
     hi: "व्याख्या-योग्य एआई दावा निर्णय, मोनाड पर स्थायी रूप से दर्ज।",

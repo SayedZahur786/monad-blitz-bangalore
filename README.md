@@ -1,15 +1,15 @@
-# ClaimTrust India 🏥⛓️
+# We-WhoCares 🏥⛓️
 
 **Explainable AI claim decisions, recorded immutably on Monad.**
 
 Health-insurance AI agents make opaque, black-box claim decisions — fuelling
-grievances, distrust, and hard-to-fight appeals. ClaimTrust India makes every
+grievances, distrust, and hard-to-fight appeals. We-WhoCares makes every
 decision **fully explainable in plain language** and writes the decision + its
 reasons (as a tamper-evident hash) to an **immutable audit trail on the Monad
 blockchain**. Policyholders, insurers, and IRDAI can all verify exactly *why* a
 decision was made.
 
-**🔴 Live demo:** https://web-braveeminent-gmailcoms-projects.vercel.app
+**🔴 Live demo:** https://we-whocares.vercel.app
 
 > Submitting to Monad Blitz Bangalore? See [`SUBMISSION_GUIDE.md`](./SUBMISSION_GUIDE.md).
 

@@ -8,7 +8,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ClaimTrust India — Explainable AI claims on Monad",
+  title: "We-WhoCares — Explainable AI claims on Monad",
   description:
     "Every AI health-insurance claim decision explained in plain language and recorded immutably on the Monad blockchain.",
 };
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <main className="flex-1">{children}</main>
           <footer className="border-t border-border bg-white">
             <div className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-muted">
-              ClaimTrust India · Built for transparent, IRDAI-aligned claims · Audit trail on Monad testnet
+              We-WhoCares · Built for transparent, IRDAI-aligned claims · Audit trail on Monad testnet
             </div>
           </footer>
         </I18nProvider>

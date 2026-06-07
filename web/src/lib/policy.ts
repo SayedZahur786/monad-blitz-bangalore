@@ -1,4 +1,4 @@
-// Deterministic 4-rule adjudication for ClaimTrust India.
+// Deterministic 4-rule adjudication for We-WhoCares.
 //
 // The rules are applied EXACTLY in the order below. If any rule FAILS the
 // decision is REJECT; only if all PASS is it APPROVE. This mirrors the prompt

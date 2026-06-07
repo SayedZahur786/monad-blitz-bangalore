@@ -1,4 +1,4 @@
-// Shared types for ClaimTrust India.
+// Shared types for We-WhoCares.
 
 export type ClaimType = "Pharmacy" | "Pre-Authorization" | "Hospital Claim";
 
