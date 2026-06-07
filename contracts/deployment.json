@@ -1,0 +1,12 @@
+{
+  "network": "Monad Testnet",
+  "chainId": 10143,
+  "contract": "ClaimRegistry",
+  "address": "0xe597FAf030831b9B1b91B641d24eDc715435De1c",
+  "deployTxHash": "0xcd62a5a45da0c394db8378e1984daba3cbca0c1c9808a831bbee7cfd0369c83b",
+  "deployer": "0x13f8AcCAe2fcC817a2ECf2efAFb018cF0BA2338e",
+  "verified": {
+    "monadvision": "https://testnet.monadvision.com/address/0xe597FAf030831b9B1b91B641d24eDc715435De1c",
+    "monadscan": "https://testnet.monadscan.com/address/0xe597FAf030831b9B1b91B641d24eDc715435De1c"
+  }
+}

@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+  ClaimTrust India theme — trustworthy blues & greens.
+  Light, clean, professional (insurance / health / govt context).
+*/
+:root {
+  --background: #f6f9fc;
+  --foreground: #0f2540;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --primary: #1565c0;      /* trust blue */
+  --primary-foreground: #ffffff;
+  --accent: #0f9d58;       /* health green */
+  --muted: #64748b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, Arial, sans-serif;
+}
+
+/* Subtle radial brand backdrop on hero sections */
+.brand-gradient {
+  background:
+    radial-gradient(900px 380px at 12% -8%, rgba(21, 101, 192, 0.12), transparent),
+    radial-gradient(700px 320px at 100% 0%, rgba(15, 157, 88, 0.1), transparent);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.4s ease both; }
+
+.shimmer {
+  background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 37%, #eef2f7 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}

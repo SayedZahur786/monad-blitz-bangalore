@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Env / secrets
+.env
+.env.local
+**/.env
+**/.env.local
+
+# Next.js
+web/.next/
+web/out/
+web/next-env.d.ts
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# Misc
+.DS_Store
+*.log
